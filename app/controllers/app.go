@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"strings"
 	"time"
 
 	"github.com/revel/revel"
@@ -10,17 +11,13 @@ type App struct {
 	*revel.Controller
 }
 
-type entry struct {
+type Entry struct {
 	Day     time.Time
-	Content string
+	Content []string
 }
 
 var (
-	e []entry
-)
-
-const (
-	layout = "2006-01-02"
+	e []Entry
 )
 
 func (c App) Index() revel.Result {
@@ -28,12 +25,12 @@ func (c App) Index() revel.Result {
 }
 
 func (c App) Post() revel.Result {
-	revel.AppLog.Debug(c.Params.Form.Get("content"))
+	s := strings.Split(c.Params.Form.Get("content"), "\n")
 	d := time.Now()
 	if len(e) == 0 {
-		e = append(e, entry{d, c.Params.Form.Get("content")})
+		e = append(e, Entry{d, s})
 	} else {
-		e = append([]entry{entry{d, c.Params.Form.Get("content")}}, e...)
+		e = append([]Entry{Entry{d, s}}, e...)
 	}
 	c.ViewArgs["entry"] = e
 	return c.RenderTemplate("App/Index.html")
