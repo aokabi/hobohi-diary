@@ -27,9 +27,10 @@ const (
 	layout = "2006-01-02 15:04:05"
 )
 
-func (c App) Index() revel.Result {
+func (c App) Index(page int) revel.Result {
 	e = []Entry{}
-	rows, err := app.DB.Query("SELECT content, datetime from entry ORDER BY id DESC limit 10")
+	revel.INFO.Println(page)
+	rows, err := app.DB.Query(fmt.Sprintf("SELECT content, datetime from entry ORDER BY id DESC limit 10 OFFSET %d", (page-1)*10))
 	if err != nil {
 		revel.INFO.Println(err)
 	}
