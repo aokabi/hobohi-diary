@@ -1,6 +1,10 @@
 package app
 
 import (
+	"database/sql"
+	"fmt"
+
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/revel/revel"
 )
 
@@ -10,7 +14,26 @@ var (
 
 	// BuildTime revel app build-time (ldflags)
 	BuildTime string
+
+	//Db
+	DB *sql.DB
 )
+
+func InitDB() {
+	address, _ := revel.Config.String("db.address")
+	user, _ := revel.Config.String("db.username")
+	pass, _ := revel.Config.String("db.password")
+	database, _ := revel.Config.String("db.name")
+	dbport, _ := revel.Config.String("db.port")
+	revel.INFO.Println(address)
+	connstring := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, pass, address, dbport, database)
+	var err error
+	DB, err = sql.Open("mysql", connstring)
+	if err != nil {
+		revel.INFO.Println("DB Error", err)
+	}
+	revel.INFO.Println("DB Connected")
+}
 
 func init() {
 	// Filters is the default set of global filters.
@@ -29,11 +52,14 @@ func init() {
 		revel.ActionInvoker,           // Invoke the action.
 	}
 
+	// add conf path
+	revel.ConfPaths = []string{"conf/secret"}
+
 	// Register startup functions with OnAppStart
 	// revel.DevMode and revel.RunMode only work inside of OnAppStart. See Example Startup Script
 	// ( order dependent )
 	// revel.OnAppStart(ExampleStartupScript)
-	// revel.OnAppStart(InitDB)
+	revel.OnAppStart(InitDB)
 	// revel.OnAppStart(FillCache)
 }
 

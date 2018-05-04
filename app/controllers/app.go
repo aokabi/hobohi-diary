@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"fmt"
 	"strings"
 	"time"
+
+	"diary/app"
 
 	"github.com/revel/revel"
 )
@@ -20,18 +23,36 @@ var (
 	e []Entry
 )
 
+const (
+	layout = "2006-01-02 15:04:05"
+)
+
 func (c App) Index() revel.Result {
+	e = []Entry{}
+	rows, err := app.DB.Query("SELECT content, datetime from entry ORDER BY id DESC limit 10")
+	if err != nil {
+		revel.INFO.Println(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		ent := Entry{}
+		var content string
+		err := rows.Scan(&content, &ent.Day)
+		if err != nil {
+			revel.INFO.Println(err)
+		}
+		ent.Content = strings.Split(content, "\n")
+		e = append(e, ent)
+	}
+	c.ViewArgs["entry"] = e
 	return c.Render()
 }
 
 func (c App) Post() revel.Result {
-	s := strings.Split(c.Params.Form.Get("content"), "\n")
 	d := time.Now()
-	if len(e) == 0 {
-		e = append(e, Entry{d, s})
-	} else {
-		e = append([]Entry{Entry{d, s}}, e...)
+	_, err := app.DB.Exec(fmt.Sprintf("INSERT INTO entry(content, datetime) VALUES('%s', '%s')", c.Params.Form.Get("content"), d.Format(layout)))
+	if err != nil {
+		revel.INFO.Println(err)
 	}
-	c.ViewArgs["entry"] = e
-	return c.RenderTemplate("App/Index.html")
+	return c.Redirect(App.Index)
 }
