@@ -14,7 +14,7 @@
     <div class="col-md-8">
       <form class="form-horizontal" action="/" method="POST">
         <div class="form-group-lg">
-          <div class="col-md-12">
+          <div class="col-md-14">
             <textarea class="form-control" name="content"></textarea>
           </div>
         </div>
@@ -22,7 +22,12 @@
       </form>
       {{range .entry}}
       <div class="panel panel-default">
-        <div class="panel-heading">{{ .Day.Format "2006-01-02 15:04:05" }}</div>
+        <div class="panel-heading">{{ .Day.Format "2006-01-02 15:04:05" }}
+          <br>
+          <input type="text" class="form-control" name="tags" id="input_tags" placeholder="Tags" data-role="tagsinput" value="tag1 tag2"
+          />
+
+        </div>
         <div class="panel-body">
           {{range .Content}}
           <p>{{ . }}
@@ -38,21 +43,11 @@
               <span aria-hidden="true">«</span>
             </a>
           </li>
+          {{range .page}}
           <li>
-            <a href="/?page=1">1</a>
+            <a href="/?page={{.}}">{{.}}</a>
           </li>
-          <li>
-            <a href="/?page=2">2</a>
-          </li>
-          <li>
-            <a href="#">3</a>
-          </li>
-          <li>
-            <a href="#">4</a>
-          </li>
-          <li>
-            <a href="#">5</a>
-          </li>
+          {{end}}
           <li>
             <a href="#" aria-label="次のページへ">
               <span aria-hidden="true">»</span>

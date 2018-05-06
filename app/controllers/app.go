@@ -20,7 +20,8 @@ type Entry struct {
 }
 
 var (
-	e []Entry
+	e       []Entry
+	nowPage int
 )
 
 const (
@@ -30,6 +31,7 @@ const (
 func (c App) Index(page int) revel.Result {
 	e = []Entry{}
 	revel.INFO.Println(page)
+	nowPage = page
 	rows, err := app.DB.Query(fmt.Sprintf("SELECT content, datetime from entry ORDER BY id DESC limit 10 OFFSET %d", (page-1)*10))
 	if err != nil {
 		revel.INFO.Println(err)
@@ -46,14 +48,21 @@ func (c App) Index(page int) revel.Result {
 		e = append(e, ent)
 	}
 	c.ViewArgs["entry"] = e
+
+	var pages = make([]int, app.EntryNum/11+1)
+	for index := range pages {
+		pages[index] = index + 1
+	}
+	c.ViewArgs["page"] = pages
 	return c.Render()
 }
 
 func (c App) Post() revel.Result {
+	revel.INFO.Println(c.Request)
 	d := time.Now()
 	_, err := app.DB.Exec(fmt.Sprintf("INSERT INTO entry(content, datetime) VALUES('%s', '%s')", c.Params.Form.Get("content"), d.Format(layout)))
 	if err != nil {
 		revel.INFO.Println(err)
 	}
-	return c.Redirect(App.Index)
+	return c.Redirect(App.Index, nowPage)
 }

@@ -17,6 +17,9 @@ var (
 
 	//Db
 	DB *sql.DB
+
+	//記事数
+	EntryNum int
 )
 
 func InitDB() {
@@ -33,6 +36,13 @@ func InitDB() {
 		revel.INFO.Println("DB Error", err)
 	}
 	revel.INFO.Println("DB Connected")
+	row, err := DB.Query("SELECT COUNT(*) FROM entry")
+	if err != nil {
+		revel.INFO.Println(err)
+	}
+	defer row.Close()
+	row.Next()
+	row.Scan(&EntryNum)
 }
 
 func init() {
