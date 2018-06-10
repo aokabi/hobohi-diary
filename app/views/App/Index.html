@@ -25,7 +25,7 @@
         <div class="panel-heading">{{ .Day.Format "2006-01-02 15:04:05" }}
           <br>
           <input type="text" class="form-control" name="tags" id="input_tags" placeholder="Tags" data-role="tagsinput" value="" />
-
+          <input type="hidden" name="id" value="{{.Id}}" />
         </div>
         <div class="panel-body">
           {{range .Content}}
