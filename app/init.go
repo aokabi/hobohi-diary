@@ -28,17 +28,18 @@ func InitDB() {
 	pass, _ := revel.Config.String("db.password")
 	database, _ := revel.Config.String("db.name")
 	dbport, _ := revel.Config.String("db.port")
-	revel.INFO.Println(address)
+	revel.AppLog.Info(address)
 	connstring := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, pass, address, dbport, database)
 	var err error
 	DB, err = sql.Open("mysql", connstring)
 	if err != nil {
-		revel.INFO.Println("DB Error", err)
+		revel.AppLog.Info("DB Connect Error", err)
 	}
-	revel.INFO.Println("DB Connected")
+	fmt.Printf("%s/n",DB)
+	revel.AppLog.Info("DB Connected")
 	row, err := DB.Query("SELECT COUNT(*) FROM entry")
 	if err != nil {
-		revel.INFO.Println(err)
+		revel.AppLog.Info("DB Error", err)
 	}
 	defer row.Close()
 	row.Next()
@@ -63,7 +64,7 @@ func init() {
 	}
 
 	// add conf path
-	revel.ConfPaths = []string{"conf/secret"}
+	revel.ConfPaths = []string{"conf", "conf/secret"}
 
 	// Register startup functions with OnAppStart
 	// revel.DevMode and revel.RunMode only work inside of OnAppStart. See Example Startup Script
