@@ -15,7 +15,7 @@ type App struct {
 }
 
 type Entry struct {
-	Id			int
+	Id      int
 	Day     time.Time
 	Content []string
 }
@@ -36,6 +36,7 @@ func (c App) Index(page int) revel.Result {
 	rows, err := app.DB.Query(fmt.Sprintf("SELECT id, content, datetime from entry ORDER BY id DESC limit 10 OFFSET %d", (page-1)*10))
 	if err != nil {
 		revel.AppLog.Info("DB Error", err)
+		return c.NotFound("not found")
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -44,7 +45,8 @@ func (c App) Index(page int) revel.Result {
 		var id int
 		err := rows.Scan(&id, &content, &ent.Day)
 		if err != nil {
-			revel.AppLog.Info("error",err)
+			revel.AppLog.Info("error", err)
+			return c.RenderError(err)
 		}
 		ent.Content = strings.Split(content, "\n")
 		e = append(e, ent)
