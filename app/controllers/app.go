@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"diary/app"
+	"github.com/aokabi/hobohi-diary/app"
 
 	"github.com/revel/revel"
 )
