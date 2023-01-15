@@ -1,0 +1,28 @@
+name: deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+      - name: Install
+        run: go install github.com/revel/cmd/revel@latest
+      - name: Build
+        run: revel build -a .
+      - name: Generate ssh key
+        run: echo "$SSH_PRIVATE_KEY" > ${{ runner.temp }}/key && chmod 600 ${{ runner.temp }}/key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Deploy with rsync
+        run: >
+          rsync -e 'ssh -i ${{ runner.temp }}/key -o StrictHostKeyCheking=no -o UserKnownHostsFile=/dev/null'
+          -av --delete target/ ${SSH_USER}@${SSH_HOST}:${DST_PATH}
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          DST_PATH: ${{ secrets.DST_PATH }}
+          
