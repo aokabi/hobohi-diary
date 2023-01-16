@@ -6,6 +6,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: conoha
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
