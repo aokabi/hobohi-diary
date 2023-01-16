@@ -9,6 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.17.0'
       - name: Install
         run: go install github.com/revel/cmd/revel@latest
       - name: Build
