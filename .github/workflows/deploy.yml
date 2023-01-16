@@ -26,7 +26,7 @@ jobs:
         run: apt -y install rsync
       - name: Deploy with rsync
         run: >
-          rsync -e 'ssh -i ${{ runner.temp }}/key -o StrictHostKeyCheking=no -o UserKnownHostsFile=/dev/null'
+          rsync -e 'ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
           -av --delete target/ ${SSH_USER}@${SSH_HOST}:${DST_PATH}
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
