@@ -20,6 +20,10 @@ jobs:
         run: echo "$SSH_PRIVATE_KEY" > ${{ runner.temp }}/key && chmod 600 ${{ runner.temp }}/key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Update repository
+        run: apt update
+      - name: Install rsync
+        run: apt -y install rsync
       - name: Deploy with rsync
         run: >
           rsync -e 'ssh -i ${{ runner.temp }}/key -o StrictHostKeyCheking=no -o UserKnownHostsFile=/dev/null'
