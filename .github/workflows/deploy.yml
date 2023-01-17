@@ -23,9 +23,9 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Update repository
-        run: apt update
+        run: sudo apt update
       - name: Install rsync
-        run: apt -y install rsync
+        run: sudo apt -y install rsync
       - name: Deploy with rsync
         run: >
           rsync -e 'ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
