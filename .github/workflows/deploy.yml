@@ -34,4 +34,11 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           DST_PATH: ${{ secrets.DST_PATH }}
+      - name: Deploy secrets
+        run: ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${SSH_USER}@${SSH_HOST} cp ~/app.conf ~/target/src/github.com/aokabi/hobohi-diary/conf/secret/
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          DST_PATH: ${{ secrets.DST_PATH }}
+
           
