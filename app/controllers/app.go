@@ -30,6 +30,14 @@ const (
 )
 
 func (c App) Index(page int) revel.Result {
+	if !c.Params.Query.Has("page") {
+		page = 1
+	}
+
+	if page <= 0 {
+		return c.Todo()
+	}
+
 	e = []Entry{}
 	revel.AppLog.Info("page = ", page)
 	nowPage = page
