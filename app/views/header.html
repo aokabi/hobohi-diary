@@ -9,6 +9,18 @@
   <link rel="stylesheet" type="text/css" href="/public/css/bootstrap-3.3.6.min.css">
   <link rel="shortcut icon" type="image/png" href="/public/img/favicon.png">
   <link rel="stylesheet" type="text/css" href="/public/css/bootstrap-tagsinput.css">
+  <link rel="manifest" href="/public/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/public/js/service-worker.js', {scope: "/"}).then(function(registration) {
+        // Registration was successful
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      }, function(err) {
+        // registration failed :(
+        console.log('ServiceWorker registration failed: ', err);
+      });
+    }
+  </script>
   <script src="/public/js/jquery-2.2.4.min.js"></script>
   <script src="/public/js/bootstrap-3.3.6.min.js"></script>
   <script src="/public/js/bootstrap-tagsinput.js"></script> {{range .moreStyles}}
