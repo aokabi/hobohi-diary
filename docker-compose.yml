@@ -1,0 +1,67 @@
+services:
+  # MySQLデータベース
+  db:
+    image: mysql:8.0
+    container_name: hobohi-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: diary
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Rustバックエンド
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hobohi-backend
+    restart: always
+    ports:
+      - "9001:9001"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=diary
+      - RUST_LOG=info
+      - ALLOWED_ORIGINS=http://localhost:3000
+    develop:
+      watch:
+        - action: rebuild 
+          path: ./backend
+
+  # Next.jsフロントエンド
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hobohi-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:9001/api
+    develop:
+      watch:
+        - action: rebuild 
+          path: ./frontend/app
+
+
+volumes:
+  mysql-data:
