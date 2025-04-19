@@ -53,7 +53,7 @@ export default function Home() {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <header className="bg-green-100 p-6 mb-8 rounded-lg">
+      <header className="bg-green-100 dark:bg-gray-800 p-6 mb-8 rounded-lg">
         <h1 className="text-3xl font-bold">ほぼ日だいあり</h1>
       </header>
 
@@ -83,7 +83,7 @@ export default function Home() {
             <>
               {entries.map((entry) => (
                 <div key={entry.id} className="mb-6 border rounded-md overflow-hidden">
-                  <div className="bg-gray-100 p-3 border-b">
+                  <div className="bg-gray-100 dark:bg-gray-700 p-3 border-b">
                     {formatDate(entry.datetime)}
                   </div>
                   <div className="p-4 whitespace-pre-wrap">
@@ -128,7 +128,7 @@ export default function Home() {
               )}
             </>
           ) : (
-            <div className="text-center p-8 bg-gray-50 rounded-md">
+            <div className="text-center p-8 bg-gray-50 dark:bg-gray-800 rounded-md">
               {isLoading ? '読み込み中...' : '日記がまだありません。最初の日記を投稿してみましょう！'}
             </div>
           )}
