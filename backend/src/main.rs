@@ -10,6 +10,9 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 環境変数の読み込み
+    dotenv::dotenv().ok();
+    
     // ロギングの初期化
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
@@ -17,9 +20,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ))
         .with(tracing_subscriber::fmt::layer())
         .init();
-
-    // 環境変数の読み込み
-    dotenv::dotenv().ok();
 
     // 環境変数からDB接続情報を取得
     let db_user = std::env::var("DB_USER").unwrap_or_default();
