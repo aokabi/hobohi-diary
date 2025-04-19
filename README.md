@@ -1,43 +1,104 @@
-# Welcome to Revel
+# ほぼ日だいあり
 
-A high-productivity web framework for the [Go language](http://www.golang.org/).
+シンプルな日記アプリケーション。Rust（Axum）バックエンドとNext.jsフロントエンドで実装されています。
 
+## プロジェクト構成
 
-### Start the web server:
+- `backend/`: Rust + Axumで実装されたAPIサーバー
+- `frontend/`: Next.jsで実装されたフロントエンド
 
-   revel run myapp
+## 開発環境のセットアップ
 
-### Go to http://localhost:9000/ and you'll see:
+### Docker Composeを使用する方法（推奨）
 
-    "It works"
+Docker Composeを使用すると、バックエンド、フロントエンド、データベースを一度に起動できます。
 
-## Code Layout
+1. Docker Composeを起動
 
-The directory structure of a generated Revel application:
+```bash
+docker compose up
+```
 
-    conf/             Configuration directory
-        app.conf      Main app configuration file
-        routes        Routes definition file
+または、バックグラウンドで実行する場合：
 
-    app/              App sources
-        init.go       Interceptor registration
-        controllers/  App controllers go here
-        views/        Templates directory
+```bash
+docker compose up -d
+```
 
-    messages/         Message files
+2. アクセス
 
-    public/           Public static assets
-        css/          CSS files
-        js/           Javascript files
-        images/       Image files
+- フロントエンド: http://localhost:3000
+- バックエンドAPI: http://localhost:9001/api
 
-    tests/            Test suites
+3. 停止
 
+```bash
+docker compose down
+```
 
-## Help
+データベースのデータを削除する場合：
 
-* The [Getting Started with Revel](http://revel.github.io/tutorial/gettingstarted.html).
-* The [Revel guides](http://revel.github.io/manual/index.html).
-* The [Revel sample apps](http://revel.github.io/examples/index.html).
-* The [API documentation](https://godoc.org/github.com/revel/revel).
+```bash
+docker compose down -v
+```
 
+### 個別に起動する方法
+
+#### バックエンド（Rust + Axum）
+
+1. 必要な環境変数を設定
+
+```
+DB_USER=root
+DB_PASSWORD=
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=diary
+RUST_LOG=info
+```
+
+2. バックエンドの起動
+
+```bash
+cd backend
+cargo run
+```
+
+サーバーは http://localhost:9001 で起動します。
+
+#### フロントエンド（Next.js）
+
+1. 必要な環境変数を設定
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:9001/api
+```
+
+2. フロントエンドの起動
+
+```bash
+cd frontend
+npm run dev
+```
+
+フロントエンドは http://localhost:3000 で起動します。
+
+## API エンドポイント
+
+- `GET /api/entries?page=1` - 日記エントリの一覧取得（ページネーション付き）
+- `POST /api/entries` - 新しい日記エントリの作成
+- `GET /api/entries/count` - 日記エントリの総数取得
+
+## 技術スタック
+
+### バックエンド
+- Rust
+- Axum（Webフレームワーク）
+- SQLx（データベースクライアント）
+- MySQL（データベース）
+
+### フロントエンド
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
