@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # MySQLデータベース
   db:
@@ -14,14 +12,12 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
       - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
       interval: 5s
       timeout: 5s
       retries: 5
-    
 
   # Rustバックエンド
   backend:
@@ -36,12 +32,16 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DB_USER=root
+      - DB_USER=user
       - DB_PASSWORD=password
       - DB_HOST=db
       - DB_PORT=3306
       - DB_NAME=diary
       - RUST_LOG=info
+    develop:
+      watch:
+        - action: rebuild 
+          path: ./backend
 
   # Next.jsフロントエンド
   frontend:
@@ -56,6 +56,11 @@ services:
       - backend
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:9001/api
+    develop:
+      watch:
+        - action: rebuild 
+          path: ./frontend/app
+
 
 volumes:
   mysql-data:

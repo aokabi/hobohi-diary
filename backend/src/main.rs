@@ -3,8 +3,8 @@ mod handlers;
 mod models;
 mod routes;
 
+use axum::http::{HeaderName, HeaderValue, Method};
 use std::net::SocketAddr;
-use axum::http::{Method, HeaderName, HeaderValue};
 use tower_http::cors::{CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -12,7 +12,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 環境変数の読み込み
     dotenv::dotenv().ok();
-    
+
     // ロギングの初期化
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
@@ -36,16 +36,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // データベース接続プールの作成
     let pool = db::connection::create_pool(&database_url).await?;
 
+    let origins = [
+        "http://localhost:3000".parse().unwrap(),
+        "http://frontend:3000".parse().unwrap(),
+    ];
     // CORSの設定
     let cors = CorsLayer::new()
-        .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
-        .allow_origin("http://frontend:3000".parse::<HeaderValue>().unwrap())
+        .allow_origin(origins)
         .allow_methods([Method::GET, Method::POST])
         .allow_headers([HeaderName::from_static("content-type")]);
 
     // ルーターの作成
-    let app = routes::create_router(pool)
-        .layer(cors);
+    let app = routes::create_router(pool).layer(cors);
 
     // サーバーアドレスの設定
     let addr = SocketAddr::from(([0, 0, 0, 0], 9001));
@@ -53,9 +55,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("listening on {}", addr);
 
     // サーバーの起動
-    // axum::Server::bind(&addr)
-    //     .serve(app.into_make_service())
-    //     .await?;
     axum::serve(listener, app).await.unwrap();
 
     Ok(())
