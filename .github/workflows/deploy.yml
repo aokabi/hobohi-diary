@@ -53,6 +53,7 @@ jobs:
           npm run build
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NODE_ENV: production
 
       # デプロイ準備
       - name: Prepare deployment directory
@@ -60,10 +61,7 @@ jobs:
           mkdir -p deploy/backend
           mkdir -p deploy/frontend
           cp backend/target/release/backend deploy/backend/
-          cp -r frontend/.next deploy/frontend/
-          cp -r frontend/public deploy/frontend/
-          cp frontend/package.json deploy/frontend/
-          cp frontend/next.config.ts deploy/frontend/
+          cp -r frontend/out/ deploy/frontend/
 
       - name: Generate ssh key
         run: echo "$SSH_PRIVATE_KEY" > ${{ runner.temp }}/key && chmod 600 ${{ runner.temp }}/key

@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
+import { env } from "process";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  output: env.NODE_ENV === 'production' ? 'export' : 'standalone',
   // Docker内でのAPIアクセスを許可
   experimental: {
     serverActions: {

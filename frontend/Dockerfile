@@ -15,7 +15,7 @@ RUN npm run build
 
 # ランナーステージ
 FROM base AS runner
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 
 # 非rootユーザーを作成
 RUN addgroup --system --gid 1001 nodejs && \
