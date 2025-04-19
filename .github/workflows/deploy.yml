@@ -103,9 +103,13 @@ jobs:
 
       # サービスの再起動
       - name: Restart services
-        run: >
-          ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${SSH_USER}@${SSH_HOST} 
-          "sudo systemctl restart hobohi-backend.service && sudo systemctl restart hobohi-frontend.service"
+        run: |
+          ssh -i ${{ runner.temp }}/key \
+          -o StrictHostKeyChecking=no \
+          -o UserKnownHostsFile=/dev/null \
+          ${SSH_USER}@${SSH_HOST} \
+          "sudo systemctl restart hobohi-backend.service && \
+          sudo systemctl restart hobohi-frontend.service"
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
