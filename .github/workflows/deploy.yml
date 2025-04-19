@@ -9,39 +9,105 @@ jobs:
     environment:
       name: conoha
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Rustバックエンドのビルド
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
         with:
-          go-version: '>=1.17.0'
-          cache: true
-      - name: Install
-        run: go install github.com/revel/cmd/revel@latest
-      - name: Build
-        run: revel build -a .
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            backend/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build Rust backend
+        run: |
+          cd backend
+          cargo build --release
+
+      # Next.jsフロントエンドのビルド
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+      # デプロイ準備
+      - name: Prepare deployment directory
+        run: |
+          mkdir -p deploy/backend
+          mkdir -p deploy/frontend
+          cp backend/target/release/backend deploy/backend/
+          cp -r frontend/.next deploy/frontend/
+          cp -r frontend/public deploy/frontend/
+          cp frontend/package.json deploy/frontend/
+          cp frontend/next.config.ts deploy/frontend/
+
       - name: Generate ssh key
         run: echo "$SSH_PRIVATE_KEY" > ${{ runner.temp }}/key && chmod 600 ${{ runner.temp }}/key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: Update repository
-        run: sudo apt update
+
       - name: Install rsync
         run: sudo apt -y install rsync
+
+      # デプロイ実行
       - name: Deploy with rsync
         run: >
           rsync -e 'ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
-          -av --delete target/ ${SSH_USER}@${SSH_HOST}:${DST_PATH}
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          DST_PATH: ${{ secrets.DST_PATH }}
-      - name: Deploy secrets
-        run: >
-          ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${SSH_USER}@${SSH_HOST} 
-          "mkdir ~/target/src/github.com/aokabi/hobohi-diary/conf/secret
-          && cp ~/app.conf ~/target/src/github.com/aokabi/hobohi-diary/conf/secret/"
+          -av --delete deploy/ ${SSH_USER}@${SSH_HOST}:${DST_PATH}
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           DST_PATH: ${{ secrets.DST_PATH }}
 
-          
+      # 環境変数の設定
+      - name: Setup environment variables
+        run: >
+          ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${SSH_USER}@${SSH_HOST} 
+          "cd ${DST_PATH}/backend && 
+          echo 'DB_USER=${{ secrets.DB_USER }}' > .env &&
+          echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env &&
+          echo 'DB_HOST=${{ secrets.DB_HOST }}' >> .env &&
+          echo 'DB_PORT=${{ secrets.DB_PORT }}' >> .env &&
+          echo 'DB_NAME=${{ secrets.DB_NAME }}' >> .env &&
+          echo 'RUST_LOG=info' >> .env &&
+          cd ${DST_PATH}/frontend &&
+          echo 'NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}' > .env.local"
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          DST_PATH: ${{ secrets.DST_PATH }}
+
+      # サービスの再起動
+      - name: Restart services
+        run: >
+          ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${SSH_USER}@${SSH_HOST} 
+          "sudo systemctl restart hobohi-backend.service && sudo systemctl restart hobohi-frontend.service"
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
