@@ -82,6 +82,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           DST_PATH: ${{ secrets.DST_PATH }}
+        timeout-minutes: 1
 
       # 環境変数の設定
       - name: Setup environment variables
