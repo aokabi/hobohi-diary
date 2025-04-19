@@ -5,7 +5,7 @@ mod routes;
 
 use axum::http::{HeaderName, HeaderValue, Method};
 use std::net::SocketAddr;
-use tower_http::cors::{CorsLayer};
+use tower_http::cors::CorsLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
@@ -36,10 +36,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // データベース接続プールの作成
     let pool = db::connection::create_pool(&database_url).await?;
 
-    let origins = [
-        "http://localhost:3000".parse().unwrap(),
-        "http://frontend:3000".parse().unwrap(),
-    ];
+    let origins: Vec<HeaderValue> = std::env::var("ALLOWED_ORIGINS")
+        .unwrap_or_default()
+        .split(",")
+        .map(|s| s.trim().parse().unwrap())
+        .collect();
+
     // CORSの設定
     let cors = CorsLayer::new()
         .allow_origin(origins)

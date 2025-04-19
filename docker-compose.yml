@@ -38,6 +38,7 @@ services:
       - DB_PORT=3306
       - DB_NAME=diary
       - RUST_LOG=info
+      - ALLOWED_ORIGINS=http://localhost:3000
     develop:
       watch:
         - action: rebuild 
