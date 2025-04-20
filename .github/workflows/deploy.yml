@@ -108,7 +108,7 @@ jobs:
           -o StrictHostKeyChecking=no \
           -o UserKnownHostsFile=/dev/null \
           ${SSH_USER}@${SSH_HOST} \
-          "sudo /usr/bin/systemctl restart hobohi-backend.service"
+          "sudo /usr/bin/systemctl restart diary-backend.service"
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
