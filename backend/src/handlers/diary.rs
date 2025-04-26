@@ -154,9 +154,9 @@ pub async fn create_entry(
         }
 
         // タグが存在するか確認し、なければ作成
-        let tag_id = match sqlx::query_scalar::<_, Option<i32>>("SELECT id FROM tag WHERE name = ?")
+        let tag_id = match sqlx::query_scalar::<_, i32>("SELECT id FROM tag WHERE name = ?")
             .bind(tag_name)
-            .fetch_one(&mut *tx)
+            .fetch_optional(&mut *tx)
             .await
         {
             Ok(Some(id)) => id, // タグが存在する場合
