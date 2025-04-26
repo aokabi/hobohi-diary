@@ -4,3 +4,4 @@ routes/
 conf/secret/
 .vscode/
 target/
+!db/*.sql
