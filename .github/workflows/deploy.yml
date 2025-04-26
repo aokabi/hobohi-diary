@@ -62,6 +62,7 @@ jobs:
           mkdir -p deploy/frontend
           cp backend/target/release/backend deploy/backend/
           cp -r frontend/out/ deploy/frontend/
+          cp -r db/ deploy/
 
       - name: Generate ssh key
         run: echo "$SSH_PRIVATE_KEY" > ${{ runner.temp }}/key && chmod 600 ${{ runner.temp }}/key
@@ -96,6 +97,16 @@ jobs:
           echo 'RUST_LOG=info' >> .env &&
           cd ${DST_PATH}/frontend &&
           echo 'NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}' > .env.local"
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          DST_PATH: ${{ secrets.DST_PATH }}
+
+      - name: DB Migration
+        run: >
+          ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${SSH_USER}@${SSH_HOST} 
+          "cd ${DST_PATH} && 
+          atlas schema apply --auto-approve -u mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }} --to file://db --dev-url docker://mysql/8"
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
