@@ -106,7 +106,7 @@ jobs:
         run: >
           ssh -i ${{ runner.temp }}/key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${SSH_USER}@${SSH_HOST} 
           "cd ${DST_PATH} && 
-          atlas schema apply -u mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }} --to file://db --dev-url docker://mysql/8"
+          atlas schema apply --auto-approve -u mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }} --to file://db --dev-url docker://mysql/8"
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
