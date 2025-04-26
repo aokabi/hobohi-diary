@@ -85,9 +85,16 @@ npm run dev
 
 ## API エンドポイント
 
-- `GET /api/entries?page=1` - 日記エントリの一覧取得（ページネーション付き）
-- `POST /api/entries` - 新しい日記エントリの作成
+### エントリ関連
+- `GET /api/entries?page=1` - 日記エントリの一覧取得（ページネーション付き、タグ情報含む）
+- `POST /api/entries` - 新しい日記エントリの作成（従来の方法）
+- `POST /api/entries/with-tags` - タグ付きの日記エントリ作成
 - `GET /api/entries/count` - 日記エントリの総数取得
+
+### タグ関連
+- `GET /api/tags` - タグ一覧の取得
+- `POST /api/tags` - 新しいタグの作成
+- `GET /api/tags/:id/entries?page=1` - 特定のタグに関連する日記エントリの取得
 
 ## 技術スタック
 
