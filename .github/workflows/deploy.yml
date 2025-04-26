@@ -60,7 +60,6 @@ jobs:
         run: |
           mkdir -p deploy/backend
           mkdir -p deploy/frontend
-          mkdir -p deploy/db
           cp backend/target/release/backend deploy/backend/
           cp -r frontend/out/ deploy/frontend/
           cp -r db/ deploy/
