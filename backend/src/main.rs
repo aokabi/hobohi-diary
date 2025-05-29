@@ -1,7 +1,9 @@
 mod db;
 mod handlers;
 mod models;
+mod repositories; // 追加
 mod routes;
+mod services; // 追加
 
 use axum::http::{HeaderName, HeaderValue, Method};
 use std::net::SocketAddr;

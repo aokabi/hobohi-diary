@@ -12,7 +12,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./db/initial_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ./db/tag_schema.sql:/docker-entrypoint-initdb.d/02-tag-schema.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
