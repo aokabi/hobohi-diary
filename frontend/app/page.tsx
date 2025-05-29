@@ -65,8 +65,8 @@ export default function Home() {
     loadEntries(currentPage);
   }, [currentPage, loadEntries]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!content.trim()) return;
 
     setIsLoading(true);
@@ -81,6 +81,13 @@ export default function Home() {
       console.error('Failed to create entry:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      e.preventDefault();
+      handleSubmit();
     }
   };
 
@@ -159,7 +166,8 @@ export default function Home() {
                 rows={5}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="今日の出来事を書いてみよう..."
+                onKeyDown={handleKeyDown}
+                placeholder="今日の出来事を書いてみよう... (Ctrl+Enterで投稿)"
                 disabled={isLoading}
               />
             </div>
